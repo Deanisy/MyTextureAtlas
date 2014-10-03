@@ -202,6 +202,7 @@ static NSString *const SPRetinaSuffix = @"@2x";
 - (SKTexture *) texture
 {
     if (_texture == nil) {
+       
         CGRect normalizedRect = [_parent normalizedRect:_textureRect];
         _texture = [SKTexture textureWithRect:normalizedRect inTexture:_parent.texture];
         
@@ -212,19 +213,27 @@ static NSString *const SPRetinaSuffix = @"@2x";
         CGSize sourceSize;
         if (!_textureRotated) {
             sourceSize = CGSizeMake(_spriteSourceSize.width, _spriteSourceSize.height);
+            cropScale = CGPointMake(_textureRect.size.width / sourceSize.width,
+                                    _textureRect.size.height / sourceSize.height);
+            [_texture setValue:[NSValue valueWithCGPoint:cropScale] forKey:@"cropScale"];
+            
+            CGPoint adjPoint = CGPointMake((_textureRect.size.width - sourceSize.width) / 2 + _spriteOffset.x,
+                                           (_textureRect.size.height - sourceSize.height) / 2 + _spriteOffset.y);
+            CGPoint cropOffset = CGPointMake(adjPoint.x/_textureRect.size.width, adjPoint.y/_textureRect.size.height);
+            [_texture setValue:[NSValue valueWithCGPoint:cropOffset] forKey:@"cropOffset"];
         } else {
             sourceSize = CGSizeMake(_spriteSourceSize.height, _spriteSourceSize.width);
+            cropScale = CGPointMake(_textureRect.size.height / sourceSize.width,
+                                    _textureRect.size.width / sourceSize.height);
+            [_texture setValue:[NSValue valueWithCGPoint:cropScale] forKey:@"cropScale"];
+            CGPoint adjPoint = CGPointMake((_textureRect.size.height - sourceSize.height) / 2 + _spriteOffset.x,
+                                           (_textureRect.size.width - sourceSize.width) / 2 + _spriteOffset.y);
+            CGPoint cropOffset = CGPointMake(adjPoint.x/_textureRect.size.height, adjPoint.y/_textureRect.size.width);
+            [_texture setValue:[NSValue valueWithCGPoint:cropOffset] forKey:@"cropOffset"];
         }
-        cropScale = CGPointMake(_textureRect.size.width / sourceSize.width,
-                                _textureRect.size.height / sourceSize.height);
-        [_texture setValue:[NSValue valueWithCGPoint:cropScale] forKey:@"cropScale"];
         
-        CGPoint adjPoint = CGPointMake((_textureRect.size.width - sourceSize.width) / 2 + _spriteOffset.x,
-                                       (_textureRect.size.height - sourceSize.height) / 2 + _spriteOffset.y);
-        CGPoint cropOffset = CGPointMake(adjPoint.x/_textureRect.size.width, adjPoint.y/_textureRect.size.height);
-        [_texture setValue:[NSValue valueWithCGPoint:cropOffset] forKey:@"cropOffset"];
     }
-    
+
     return _texture;
 }
 
